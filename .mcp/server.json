@@ -10,6 +10,7 @@
   "packages": [
     {
       "registry_type": "pypi",
+      "registryType": "pypi",
       "identifier": "personal-mcp",
       "version": "1.0.0",
       "transport": {
