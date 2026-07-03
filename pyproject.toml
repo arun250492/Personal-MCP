@@ -3,8 +3,8 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "personal-mcp"
-version = "1.0.0"
+name = "personal-mcp-arun"
+version = "1.0.1"
 description = "Your AI-powered personal desktop assistant — MCP server for Gmail, Calendar, files, clipboard, apps, browser, and more."
 readme = "README.md"
 license = "MIT"
