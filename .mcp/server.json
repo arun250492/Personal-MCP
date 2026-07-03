@@ -1,5 +1,5 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.arun250492/personal-mcp",
   "description": "AI-powered personal assistant: Gmail, Calendar, files, clipboard, browser, apps.",
   "version": "1.0.0",
@@ -9,9 +9,12 @@
   },
   "packages": [
     {
-      "registryType": "pypi",
+      "registry_type": "pypi",
       "identifier": "personal-mcp",
-      "version": "1.0.0"
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }
