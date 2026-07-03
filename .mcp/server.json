@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.arun250492/personal-mcp",
+  "description": "Your AI-powered personal desktop assistant. 30+ tools for Gmail, Google Calendar, file management, clipboard, screenshots, browser, app launcher, desktop notifications, social media posting, system info, and more.",
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/arun250492/Personal-MCP",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registry_name": "pypi",
+      "name": "personal-mcp",
+      "version": "1.0.0",
+      "environment_variables": [
+        {
+          "name": "GMAIL_CREDENTIALS_PATH",
+          "description": "Path to Gmail OAuth credentials JSON (optional, defaults to ~/.personal-mcp/gmail_credentials.json)"
+        },
+        {
+          "name": "TWITTER_API_KEY",
+          "description": "Twitter/X API key for posting tweets (optional)"
+        }
+      ],
+      "arguments": []
+    }
+  ]
+}

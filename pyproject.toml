@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "personal-mcp"
+version = "1.0.0"
+description = "Your AI-powered personal desktop assistant — MCP server for Gmail, Calendar, files, clipboard, apps, browser, and more."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Arun", email = "arun250492@users.noreply.github.com" }]
+keywords = ["mcp", "model-context-protocol", "ai", "assistant", "gmail", "calendar", "desktop"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "httpx>=0.27.0",
+]
+
+# UPDATE THIS after publishing to PyPI
+mcpName = "io.github.arun250492/personal-mcp"
+
+[project.optional-dependencies]
+google = [
+    "google-auth>=2.0.0",
+    "google-auth-oauthlib>=1.0.0",
+    "google-api-python-client>=2.0.0",
+]
+desktop = [
+    "psutil>=5.9.0",
+    "pyperclip>=1.8.0",
+    "Pillow>=10.0.0",
+]
+social = [
+    "tweepy>=4.14.0",
+]
+all = [
+    "personal-mcp[google,desktop,social]",
+    "send2trash>=1.8.0",
+]
+
+[project.scripts]
+personal-mcp = "personal_mcp:main"
+
+[project.urls]
+Homepage = "https://github.com/arun250492/Personal-MCP"
+Repository = "https://github.com/arun250492/Personal-MCP"
+Issues = "https://github.com/arun250492/Personal-MCP/issues"

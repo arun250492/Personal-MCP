@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+gmail_token.json
+gcal_token.json
+gmail_credentials.json
+.personal-mcp/

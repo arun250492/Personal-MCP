@@ -1,0 +1,51 @@
+name: Publish to PyPI + MCP Registry
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  publish-pypi:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # for trusted PyPI publishing
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Uses trusted publishing (OIDC) — no API token needed
+        # Configure at: https://pypi.org/manage/project/personal-mcp/settings/publishing/
+
+  publish-mcp-registry:
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # for MCP Registry GitHub OIDC auth
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for PyPI availability
+        run: |
+          echo "Waiting 60s for PyPI to index the package..."
+          sleep 60
+
+      - name: Install mcp-publisher
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
+          sudo mv mcp-publisher /usr/local/bin/
+
+      - name: Publish to MCP Registry
+        run: mcp-publisher publish .mcp/server.json
