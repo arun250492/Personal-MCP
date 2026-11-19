@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.1 — 2026-11-19
+
+Accuracy fixes found by the first live checks against real sites:
+- DNS: different IPs from different resolvers (CDN / geo DNS) is no longer reported as a warning.
+- Provider detection: NS1 nameservers were wrongly mapped to Netlify; DNS-hosting providers are now only
+  checked when DNS itself fails.
+- A provider incident is only treated as the cause when the site is actually failing; otherwise it is shown
+  as information ("reports incidents, but this site is not affected").
+- AWS events now show the affected region.
+- Publish workflow logs in to the MCP Registry via GitHub OIDC.
+
 ## 2.0.0 — 2026-11-19
 
 ### New: IsItMe? IT triage toolset

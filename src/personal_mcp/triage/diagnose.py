@@ -85,10 +85,14 @@ def build_verdict(target: Target, dns_findings: list[dict], tls_findings: list[d
     for v in vendors:
         why = "; ".join(providers.get(v["vendor"], []))
         if v["status"] in ("major", "minor"):
-            names = ", ".join(i.get("name") or "" for i in v["incidents"][:2])
-            vendor_findings.append(finding("provider", "warn" if status == "ok" else "fail",
-                                           f"{v['name']} reports an active incident",
-                                           f"{names} (detected via {why})", v["page"]))
+            names = "; ".join(i.get("name") or "" for i in v["incidents"][:2])
+            if status == "down":
+                vendor_findings.append(finding("provider", "fail", f"{v['name']} reports an active incident",
+                                               f"{names} (provider detected via {why})", v["page"]))
+            else:
+                vendor_findings.append(finding("provider", "info",
+                                               f"{v['name']} reports incidents, but this site is not affected",
+                                               f"{names} (provider detected via {why})"))
         elif v["status"] == "operational":
             vendor_findings.append(finding("provider", "pass", f"{v['name']} reports no incidents", f"detected via {why}"))
         else:
@@ -104,7 +108,7 @@ def build_verdict(target: Target, dns_findings: list[dict], tls_findings: list[d
     return {
         "status": status,
         "likely_cause": cause,
-        "cause_label": CAUSES[cause],
+        "cause_label": "Up, with minor warnings" if (status == "degraded" and cause == "none") else CAUSES[cause],
         "headline": _headline(status, cause, target.host, providers_down),
         "findings": findings + vendor_findings,
         "fixes": list(dict.fromkeys(fixes))[:6],
@@ -177,7 +181,9 @@ async def diagnose(url: str, policy: NetPolicy, *, local_mode: bool = False,
         http_findings = evaluate_http(http_info) if ips else []
 
     headers = (http_info.get("final") or {}).get("headers", {})
-    providers = detect_providers(target.host, ov.get("cname_chain", []), ov.get("nameservers", []), headers)
+    dns_failed = any(f["status"] == "fail" for f in dns_findings)
+    providers = detect_providers(target.host, ov.get("cname_chain", []),
+                                 ov.get("nameservers", []) if dns_failed else [], headers)
     vendors = await vendor_status(list(providers)[:4], policy) if providers else []
 
     verdict = build_verdict(target, dns_findings, tls_findings, http_findings, vendors, providers, local_mode)

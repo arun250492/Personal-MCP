@@ -37,7 +37,7 @@ def test_dns_nxdomain():
 def test_dns_inconsistent():
     f = evaluate_overview(ov({"google": {"rcode": "NOERROR", "addresses": ["1.2.3.4"]},
                               "cloudflare": {"rcode": "NOERROR", "addresses": ["5.6.7.8"]}}))
-    assert f[0]["status"] == "warn" and "different" in f[0]["title"]
+    assert f[0]["status"] == "pass" and "differ by location" in f[0]["detail"]
 
 
 def test_dns_local_resolver_broken():
@@ -209,3 +209,25 @@ async def test_diagnose_hosted_blocks_private():
     from personal_mcp.netguard import TargetError
     with pytest.raises(TargetError):
         await diag_mod.diagnose("http://127.1/", HOSTED_POLICY)
+
+
+def test_dns_partial_resolution_warns():
+    f = evaluate_overview(ov({"google": {"rcode": "NOERROR", "addresses": ["1.2.3.4"]},
+                              "cloudflare": {"rcode": "NOERROR", "addresses": []}}))
+    assert f[0]["status"] == "warn"
+
+
+def test_dns_provider_ignored_when_dns_healthy():
+    # NS1 is not Netlify, and Route 53 nameservers alone must not pull in AWS when DNS works.
+    p = detect_providers("github.com", [], [], {"server": "github.com", "x-github-request-id": "1"})
+    assert set(p) == {"github"}
+    assert "netlify" not in detect_providers("x.com", [], ["dns1.p08.nsone.net"], {})
+
+
+async def test_diagnose_provider_incident_does_not_fail_healthy_site(serve, policy, mock_world):
+    mock_world["vendors"] = [CF_DOWN]
+    port = await serve("valid")
+    r = await diag_mod.diagnose(f"https://localhost:{port}/", policy)
+    assert r["status"] == "ok"
+    prov = [f for f in r["findings"] if f["check"] == "provider"]
+    assert prov and prov[0]["status"] == "info" and "not affected" in prov[0]["title"]

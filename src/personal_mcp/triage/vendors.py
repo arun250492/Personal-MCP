@@ -90,7 +90,7 @@ CNAME_HINTS: list[tuple[str, str]] = [
 NS_HINTS: list[tuple[str, str]] = [
     (".ns.cloudflare.com", "cloudflare"), ("awsdns-", "aws"), (".azure-dns.", "azure"),
     (".googledomains.com", "gcp"), ("ns-cloud-", "gcp"), (".digitalocean.com", "digitalocean"),
-    (".vercel-dns.com", "vercel"), (".nsone.net", "netlify"),
+    (".vercel-dns.com", "vercel"),
 ]
 HEADER_HINTS: list[tuple[str, str | None, str]] = [
     # (header, substring in value or None for presence, vendor)
@@ -114,11 +114,13 @@ def resolve_vendor(name: str) -> str | None:
 
 def detect_providers(host: str, cname_chain: list[str], nameservers: list[str],
                      headers: dict[str, str] | None) -> dict[str, list[str]]:
+    """Map hosting/CDN/DNS providers to evidence. Pass nameservers only when DNS itself is suspect:
+    a DNS provider's incident is irrelevant to a site whose DNS resolves fine."""
     found: dict[str, list[str]] = {}
 
     def add(vendor: str, why: str) -> None:
         found.setdefault(vendor, [])
-        if why not in found[vendor]:
+        if why not in found[vendor] and len(found[vendor]) < 2:
             found[vendor].append(why)
 
     for name in [host, *cname_chain]:
@@ -206,10 +208,13 @@ def _parse_aws(raw: bytes) -> tuple[str, str, list[dict[str, Any]]]:
     for e in events:
         if not isinstance(e, dict):
             continue
-        name = e.get("summary")
+        name = e.get("summary") or ""
         log = e.get("event_log")
-        if not name and isinstance(log, list) and log and isinstance(log[0], dict):
-            name = log[0].get("summary")
+        if isinstance(log, list) and log and isinstance(log[-1], dict) and log[-1].get("summary"):
+            name = log[-1]["summary"]
+        region = e.get("region_name") or e.get("region")
+        if region:
+            name = f"{region}: {name}"
         inc.append({"name": name,
                     "status": str(e.get("status", "active")),
                     "impact": e.get("service_name") or e.get("service"),
@@ -217,7 +222,9 @@ def _parse_aws(raw: bytes) -> tuple[str, str, list[dict[str, Any]]]:
                     "started": e.get("date"), "url": "https://health.aws.amazon.com/health/status"})
     if not inc:
         return "operational", "No active events", []
-    return "minor", f"{len(inc)} active event(s)", inc
+    regions = sorted({i["region"] for i in inc if i.get("region")})
+    where = f" in {', '.join(regions[:4])}" if regions else ""
+    return "minor", f"{len(inc)} regional event(s){where}", inc
 
 
 def _parse_rss(raw: bytes) -> tuple[str, str, list[dict[str, Any]]]:

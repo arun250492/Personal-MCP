@@ -164,16 +164,20 @@ def evaluate_overview(ov: dict[str, Any]) -> list[dict[str, Any]]:
         ))
     else:
         sets = {k: tuple(v["addresses"]) for k, v in working.items()}
+        detail = "; ".join(f"{k}: {', '.join(v[:3]) or 'none'}" for k, v in sets.items())
         if len(set(sets.values())) == 1:
             addrs = next(iter(sets.values()))
             findings.append(finding("dns", "pass", f"DNS resolves consistently ({', '.join(addrs[:4])}"
                                     f"{'…' if len(addrs) > 4 else ''})"))
+        elif all(sets.values()):
+            # Different IPs from different resolvers is normal for CDNs and geo / load-balanced DNS.
+            findings.append(finding("dns", "pass", "DNS resolves on all public resolvers",
+                                    f"Answers differ by location (normal for CDN / geo DNS): {detail}"))
         else:
-            detail = "; ".join(f"{k}: {', '.join(v) or 'none'}" for k, v in sets.items())
             findings.append(finding(
-                "dns", "warn", "Public resolvers return different answers", detail,
+                "dns", "warn", "Some public resolvers cannot resolve this name", detail,
                 "If you changed DNS recently this is propagation and settles within the record's TTL. "
-                "Otherwise check for geo/load-balanced DNS or an inconsistent nameserver.",
+                "Otherwise check that every authoritative nameserver serves the record.",
             ))
 
     system = ov["resolvers"].get("system")
