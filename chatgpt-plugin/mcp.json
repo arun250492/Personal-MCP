@@ -3,7 +3,7 @@
   "mcpServers": {
     "isitme": {
       "type": "streamable-http",
-      "url": "https://REPLACE-WITH-YOUR-HOST/mcp"
+      "url": "https://isitme-mcp.onrender.com/mcp"
     }
   }
 }
