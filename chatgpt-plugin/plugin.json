@@ -10,7 +10,17 @@
   "homepage": "https://arun250492.github.io/Personal-MCP/",
   "repository": "https://github.com/arun250492/Personal-MCP",
   "license": "MIT",
-  "keywords": ["outage", "devops", "sre", "dns", "ssl", "certificate", "status page", "it support", "troubleshooting"],
+  "keywords": [
+    "outage",
+    "devops",
+    "sre",
+    "dns",
+    "ssl",
+    "certificate",
+    "status page",
+    "it support",
+    "troubleshooting"
+  ],
   "extensions": {
     "com.openai": {
       "interface": {
@@ -37,8 +47,8 @@
         "supportURL": "https://github.com/arun250492/Personal-MCP/issues",
         "privacyPolicyURL": "https://arun250492.github.io/Personal-MCP/privacy.html",
         "termsOfServiceURL": "https://arun250492.github.io/Personal-MCP/terms.html",
-        "logo": "./assets/logo.png",
-        "logoDark": "./assets/logo-dark.png",
+        "logo": "./assets/logo.svg",
+        "logoDark": "./assets/logo-dark.svg",
         "composerIcon": "./assets/icon.png",
         "composerIconDark": "./assets/icon-dark.png",
         "brandColor": "#1D4ED8",
@@ -50,31 +60,41 @@
             {
               "description": "Full outage diagnosis of a public website. The diagnose tool runs DNS, TLS, HTTP and provider-status checks and renders the verdict card.",
               "prompt": "Is github.com down or is it just me?",
-              "tools_triggered": ["diagnose"],
+              "tools_triggered": [
+                "diagnose"
+              ],
               "expected_behavior": "Calls diagnose with url 'github.com'. The verdict card shows status Up (green) with passing DNS, TLS and HTTP checks and GitHub detected as the provider with its current status-page state. The reply says the site is up and suggests local checks if it still fails for the user."
             },
             {
               "description": "Certificate expiry lookup for a public site.",
               "prompt": "When does the SSL certificate for wikipedia.org expire, and who issued it?",
-              "tools_triggered": ["check_tls"],
+              "tools_triggered": [
+                "check_tls"
+              ],
               "expected_behavior": "Calls check_tls with 'wikipedia.org'. Answers with the expiry date, the number of days left, the issuing CA and confirms the certificate is valid for wikipedia.org."
             },
             {
               "description": "E-mail authentication audit (SPF, DKIM, DMARC) for a domain.",
               "prompt": "Our emails from google.com keep landing in spam. Check its SPF, DKIM and DMARC setup.",
-              "tools_triggered": ["check_email_auth"],
+              "tools_triggered": [
+                "check_email_auth"
+              ],
               "expected_behavior": "Calls check_email_auth with 'google.com'. Lists MX hosts (Google), the SPF record and its all-qualifier, the DMARC policy, and whether a DKIM key was found under common selectors, with a short assessment."
             },
             {
               "description": "Cloud provider incident check across several vendors.",
               "prompt": "Are AWS, Azure or Google Cloud having any incidents right now?",
-              "tools_triggered": ["vendor_status"],
+              "tools_triggered": [
+                "vendor_status"
+              ],
               "expected_behavior": "Calls vendor_status with ['aws', 'azure', 'gcp']. Reports each provider's current status from its public status page and lists any active incidents with links, or says none are reported."
             },
             {
               "description": "DNS record lookup with specific record types.",
               "prompt": "Show me the A, MX and TXT DNS records for cloudflare.com and tell me if the resolvers agree.",
-              "tools_triggered": ["check_dns"],
+              "tools_triggered": [
+                "check_dns"
+              ],
               "expected_behavior": "Calls check_dns with name 'cloudflare.com' and record_types including A, MX and TXT. Shows the records, the authoritative nameservers and whether Google and Cloudflare DNS return consistent answers."
             }
           ],
@@ -93,7 +113,7 @@
             }
           ]
         },
-        "demo_recording_url": "https://REPLACE-WITH-YOUR-DEMO-VIDEO-URL",
+        "demo_recording_url": "https://arun250492.github.io/Personal-MCP/demo.mp4",
         "commerce": false,
         "commerce_description": "This plugin does not sell products or process payments."
       },

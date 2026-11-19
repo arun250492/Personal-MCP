@@ -133,6 +133,8 @@ def main() -> int:
     ap.add_argument("--mcp-url", help="public MCP endpoint, e.g. https://isitme.example.com/mcp")
     ap.add_argument("--demo-url", help="https URL of your demo video")
     ap.add_argument("--check-live", action="store_true", help="also check the listing URLs and /healthz respond")
+    ap.add_argument("--draft", action="store_true",
+                    help="leave out demo_recording_url (add it later in the dashboard) to upload a draft")
     ap.add_argument("--out", default=str(ROOT / "dist"))
     args = ap.parse_args()
 
@@ -143,7 +145,9 @@ def main() -> int:
     if args.demo_url:
         plugin["extensions"]["com.openai"]["review"]["demo_recording_url"] = args.demo_url
 
-    errors = validate(plugin, mcp)
+    if args.draft:
+        plugin["extensions"]["com.openai"]["review"].pop("demo_recording_url", None)
+    errors = [e for e in validate(plugin, mcp) if not (args.draft and "demo_recording_url" in e)]
     if not errors and args.check_live:
         errors = check_live(plugin, mcp)
     if errors:
@@ -156,9 +160,9 @@ def main() -> int:
     with zipfile.ZipFile(zpath, "w", zipfile.ZIP_DEFLATED) as z:
         z.writestr("plugin.json", json.dumps(plugin, indent=2, ensure_ascii=False) + "\n")
         z.writestr("mcp.json", json.dumps(mcp, indent=2) + "\n")
-        for f in sorted((HERE / "assets").iterdir()):
-            if f.suffix.lower() in (".png", ".svg", ".jpg", ".jpeg", ".webp"):
-                z.write(f, f"assets/{f.name}")
+        ui = plugin["extensions"]["com.openai"]["interface"]
+        for rel in sorted({ui[f] for f in ICON_FIELDS if ui.get(f)}):
+            z.write(HERE / rel, rel[2:])
     print(f"✓ Wrote {zpath}")
     print("  Next: upload it at https://platform.openai.com/plugins → Create plugin → Upload ZIP")
     return 0
