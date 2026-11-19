@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 jobs:
   test:
@@ -36,6 +37,8 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
         # Uses trusted publishing (OIDC) — no API token needed
         # Configure at: https://pypi.org/manage/project/personal-mcp-arun/settings/publishing/
 
@@ -57,6 +60,9 @@ jobs:
         run: |
           curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
           sudo mv mcp-publisher /usr/local/bin/
+
+      - name: Log in to MCP Registry (GitHub OIDC)
+        run: mcp-publisher login github-oidc
 
       - name: Publish to MCP Registry
         run: mcp-publisher publish .mcp/server.json
