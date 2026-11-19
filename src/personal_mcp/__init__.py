@@ -1,4 +1,6 @@
-from .server import mcp, main
+"""Personal MCP — your AI-powered personal assistant + IsItMe? IT triage toolkit."""
 
-__version__ = "1.0.1"
-__all__ = ["mcp", "main"]
+from ._version import __version__
+from .server import main, mcp
+
+__all__ = ["__version__", "main", "mcp"]

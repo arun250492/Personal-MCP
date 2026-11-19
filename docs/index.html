@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IsItMe? — outage triage for ChatGPT</title><meta name="description" content="Is it down, or is it just me? Diagnose website and API outages from ChatGPT: DNS, TLS, HTTP and cloud provider status in one verdict.">
+<link rel="icon" href="logo.svg"><link rel="stylesheet" href="style.css"></head><body>
+<header><nav><a class="brand" href="./"><img src="logo.svg" alt="">IsItMe?</a><a href="./#use">Use it</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/arun250492/Personal-MCP/issues">Support</a></nav></header>
+<main>
+<h1>Is it down, or is it just me?</h1>
+<p class="lead">IsItMe? answers the first question of every IT incident. Ask ChatGPT about a website or API and get a verdict in seconds: is the problem the site, an upstream cloud provider, or your own side?</p>
+<img class="shot" src="verdict-card.png" alt="IsItMe verdict card showing an expired certificate diagnosis">
+<h2>What it checks</h2>
+<div class="grid">
+<div class="card"><b>DNS</b>Does the name resolve, do Google and Cloudflare DNS agree, is it NXDOMAIN or still propagating?</div>
+<div class="card"><b>TLS certificate</b>Expiry and days left, hostname match, trust chain, protocol version.</div>
+<div class="card"><b>HTTP</b>Status, redirects, response time and plain-English explanations of 502/503/504 and Cloudflare 52x errors.</div>
+<div class="card"><b>Provider status</b>Detects AWS, Azure, Google Cloud, Cloudflare, GitHub, Vercel, Netlify and more, and checks their status pages.</div>
+<div class="card"><b>E-mail deliverability</b>MX, SPF, DKIM and DMARC checks for "why does our mail go to spam?".</div>
+<div class="card"><b>Ticket-ready</b>Every verdict comes with next steps and a summary you can paste into Jira, ServiceNow or Slack.</div>
+</div>
+<h2 id="use">Use it</h2>
+<p><b>In ChatGPT:</b> open the app directory, search for <b>IsItMe?</b>, connect it, then ask things like <i>"Is github.com down or is it just me?"</i> or <i>"When does the certificate for my-site.com expire?"</i>.</p>
+<p><b>On your own computer</b> (Claude Desktop, Claude Code or any MCP client), where checks run from your own network and can also reach internal hosts:</p>
+<pre>pip install personal-mcp-arun
+personal-mcp            # stdio MCP server with IsItMe? + personal assistant tools</pre>
+<h2>Private by design</h2>
+<p>Read-only. No sign-in. Only public internet services can be checked from the hosted app. Nothing you check is stored. See the <a href="privacy.html">privacy policy</a>.</p>
+</main>
+<footer><div>IsItMe? is part of <a href="https://github.com/arun250492/Personal-MCP">Personal MCP</a>, open source under the MIT license. Not affiliated with OpenAI or any cloud provider named on this site.</div></footer>
+</body></html>

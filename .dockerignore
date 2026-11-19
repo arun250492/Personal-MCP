@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+venv
+dist
+build
+docs
+tests
+chatgpt-plugin
+deploy
+**/__pycache__
+*.pyc
+*.egg-info

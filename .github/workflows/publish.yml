@@ -6,7 +6,18 @@ on:
       - "v*"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: pytest -q
+
   publish-pypi:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # for trusted PyPI publishing
@@ -26,7 +37,7 @@ jobs:
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         # Uses trusted publishing (OIDC) — no API token needed
-        # Configure at: https://pypi.org/manage/project/personal-mcp/settings/publishing/
+        # Configure at: https://pypi.org/manage/project/personal-mcp-arun/settings/publishing/
 
   publish-mcp-registry:
     needs: publish-pypi

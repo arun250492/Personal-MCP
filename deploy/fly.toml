@@ -1,0 +1,30 @@
+# Fly.io — run from the repo root:  fly launch --copy-config --config deploy/fly.toml --no-deploy
+#                                   fly secrets set OPENAI_APPS_CHALLENGE=<token>   (when the dashboard gives it)
+#                                   fly deploy --config deploy/fly.toml
+app = "isitme-mcp"            # must be globally unique; change if taken
+primary_region = "bom"        # Mumbai
+
+[build]
+  dockerfile = "../Dockerfile"
+
+[env]
+  ISITME_TRUST_PROXY = "1"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1    # keep one warm so ChatGPT calls never hit a cold start
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/healthz"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "512mb"

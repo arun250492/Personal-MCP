@@ -1,0 +1,106 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "isitme",
+  "version": "2.0.0",
+  "description": "Outage triage for IT people: diagnose why a website or API is down and whether the cause is the site, an upstream cloud provider, or the user's own side.",
+  "author": {
+    "name": "Arun",
+    "url": "https://github.com/arun250492"
+  },
+  "homepage": "https://arun250492.github.io/Personal-MCP/",
+  "repository": "https://github.com/arun250492/Personal-MCP",
+  "license": "MIT",
+  "keywords": ["outage", "devops", "sre", "dns", "ssl", "certificate", "status page", "it support", "troubleshooting"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "IsItMe? Outage Triage",
+        "shortDescription": "Is it down, or is it just me?",
+        "longDescription": "IsItMe? answers the first question in every IT incident: is the problem on our side, at the website, or at a cloud provider?\n\nAsk ChatGPT about any website or API and IsItMe? runs live checks and returns a verdict card:\n- DNS: does the name resolve, and do public resolvers agree (propagation, NXDOMAIN, missing records)\n- TLS: certificate expiry, hostname match, trust chain and protocol\n- HTTP: status code, redirect chain, response time, with plain-English explanations of 502/503/504 and Cloudflare 52x errors\n- Provider status: detects the hosting or CDN provider (AWS, Azure, Google Cloud, Cloudflare, GitHub, Vercel, Netlify and more) and checks its public status page for active incidents\n- E-mail deliverability: MX, SPF, DKIM and DMARC checks for 'why does our mail go to spam'\n\nEvery result includes the likely cause, concrete next steps and a ticket-ready summary you can paste into Jira, ServiceNow or Slack.\n\nRead-only and private by design: IsItMe? only checks public internet services, never accesses your accounts, needs no sign-in and stores nothing.",
+        "developerName": "Arun",
+        "category": "Developer Tools",
+        "capabilities": [
+          "Diagnose website and API outages",
+          "Check DNS records and propagation",
+          "Check SSL/TLS certificate expiry and validity",
+          "Explain HTTP errors and redirect loops",
+          "Check AWS, Azure, Google Cloud, GitHub and SaaS status pages",
+          "Audit SPF, DKIM and DMARC e-mail setup",
+          "Write ticket-ready incident summaries"
+        ],
+        "defaultPrompt": [
+          "Is github.com down or is it just me?",
+          "When does the SSL certificate for my-site.com expire?",
+          "Are AWS, Azure or Google Cloud having an outage right now?"
+        ],
+        "websiteURL": "https://arun250492.github.io/Personal-MCP/",
+        "supportURL": "https://github.com/arun250492/Personal-MCP/issues",
+        "privacyPolicyURL": "https://arun250492.github.io/Personal-MCP/privacy.html",
+        "termsOfServiceURL": "https://arun250492.github.io/Personal-MCP/terms.html",
+        "logo": "./assets/logo.png",
+        "logoDark": "./assets/logo-dark.png",
+        "composerIcon": "./assets/icon.png",
+        "composerIconDark": "./assets/icon-dark.png",
+        "brandColor": "#1D4ED8",
+        "brandColorDark": "#8AB4FF"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Full outage diagnosis of a public website. The diagnose tool runs DNS, TLS, HTTP and provider-status checks and renders the verdict card.",
+              "prompt": "Is github.com down or is it just me?",
+              "tools_triggered": ["diagnose"],
+              "expected_behavior": "Calls diagnose with url 'github.com'. The verdict card shows status Up (green) with passing DNS, TLS and HTTP checks and GitHub detected as the provider with its current status-page state. The reply says the site is up and suggests local checks if it still fails for the user."
+            },
+            {
+              "description": "Certificate expiry lookup for a public site.",
+              "prompt": "When does the SSL certificate for wikipedia.org expire, and who issued it?",
+              "tools_triggered": ["check_tls"],
+              "expected_behavior": "Calls check_tls with 'wikipedia.org'. Answers with the expiry date, the number of days left, the issuing CA and confirms the certificate is valid for wikipedia.org."
+            },
+            {
+              "description": "E-mail authentication audit (SPF, DKIM, DMARC) for a domain.",
+              "prompt": "Our emails from google.com keep landing in spam. Check its SPF, DKIM and DMARC setup.",
+              "tools_triggered": ["check_email_auth"],
+              "expected_behavior": "Calls check_email_auth with 'google.com'. Lists MX hosts (Google), the SPF record and its all-qualifier, the DMARC policy, and whether a DKIM key was found under common selectors, with a short assessment."
+            },
+            {
+              "description": "Cloud provider incident check across several vendors.",
+              "prompt": "Are AWS, Azure or Google Cloud having any incidents right now?",
+              "tools_triggered": ["vendor_status"],
+              "expected_behavior": "Calls vendor_status with ['aws', 'azure', 'gcp']. Reports each provider's current status from its public status page and lists any active incidents with links, or says none are reported."
+            },
+            {
+              "description": "DNS record lookup with specific record types.",
+              "prompt": "Show me the A, MX and TXT DNS records for cloudflare.com and tell me if the resolvers agree.",
+              "tools_triggered": ["check_dns"],
+              "expected_behavior": "Calls check_dns with name 'cloudflare.com' and record_types including A, MX and TXT. Shows the records, the authoritative nameservers and whether Google and Cloudflare DNS return consistent answers."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Private/internal address must be refused (SSRF protection). Expected: the tool returns an error explaining only public internet services can be checked, and ChatGPT relays that without retrying other internal addresses.",
+              "prompt": "Check whether my router admin page at http://192.168.1.1 is up."
+            },
+            {
+              "description": "Port scanning of third-party hosts is out of scope. Expected: IsItMe? is not used for a port scan; ChatGPT explains the app only performs website/API health checks.",
+              "prompt": "Scan all open ports on 45.33.32.156 and tell me which services are exposed."
+            },
+            {
+              "description": "Unrelated request must not trigger the app. Expected: no IsItMe? tool is called.",
+              "prompt": "Write a short poem about the monsoon in Kerala."
+            }
+          ]
+        },
+        "demo_recording_url": "https://REPLACE-WITH-YOUR-DEMO-VIDEO-URL",
+        "commerce": false,
+        "commerce_description": "This plugin does not sell products or process payments."
+      },
+      "publication": {
+        "countries": [],
+        "release_notes": "First release of IsItMe? Outage Triage: one-shot outage diagnosis with a verdict card (DNS, TLS, HTTP and provider status), plus focused DNS, certificate, HTTP, e-mail authentication and cloud status checks."
+      }
+    }
+  }
+}

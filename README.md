@@ -1,155 +1,88 @@
-<!-- mcp-name: io.github.arun250492/personal-mcp -->
-# MCP Registry
+<!-- mcp-name: io.github.arun250492/Personal-MCP -->
 
-The MCP registry provides MCP clients with a list of MCP servers, like an app store for MCP servers.
+# Personal MCP + IsItMe?
 
-[**📤 Publish my MCP server**](docs/modelcontextprotocol-io/quickstart.mdx) | [**⚡️ Live API docs**](https://registry.modelcontextprotocol.io/docs) | [**👀 Ecosystem vision**](docs/design/ecosystem-vision.md) | 📖 **[Full documentation](./docs)**
+An MCP server that does two jobs:
 
-## Development Status
+1. **IsItMe? — outage triage for IT people.** "Is it down, or is it just me?" One call checks DNS, the TLS
+   certificate, the HTTP response and the hosting provider's status page, then returns a verdict, the likely cause,
+   next steps and a ticket-ready summary. Also available as a **ChatGPT app**.
+2. **Personal desktop assistant.** Files, shell, clipboard, screenshots, apps, Gmail, Google Calendar,
+   notifications and more — for Claude Desktop, Claude Code and other local MCP clients.
 
-**2025-10-24 update**: The Registry API has entered an **API freeze (v0.1)** 🎉. For the next month or more, the API will remain stable with no breaking changes, allowing integrators to confidently implement support. This freeze applies to v0.1 while development continues on v0. We'll use this period to validate the API in real-world integrations and gather feedback to shape v1 for general availability. Thank you to everyone for your contributions and patience—your involvement has been key to getting us here!
+![IsItMe verdict card](docs/verdict-card.png)
 
-**2025-09-08 update**: The registry has launched in preview 🎉 ([announcement blog post](https://blog.modelcontextprotocol.io/posts/2025-09-08-mcp-registry-preview/)). While the system is now more stable, this is still a preview release and breaking changes or data resets may occur. A general availability (GA) release will follow later. We'd love your feedback in [GitHub discussions](https://github.com/modelcontextprotocol/registry/discussions/new?category=ideas) or in the [#registry-dev Discord](https://discord.com/channels/1358869848138059966/1369487942862504016) ([joining details here](https://modelcontextprotocol.io/community/communication)).
-
-Current key maintainers:
-- **Adam Jones** (Anthropic) [@domdomegg](https://github.com/domdomegg)  
-- **Tadas Antanavicius** (PulseMCP) [@tadasant](https://github.com/tadasant)
-- **Toby Padilla** (GitHub) [@toby](https://github.com/toby)
-- **Radoslav (Rado) Dimitrov** (Stacklok) [@rdimitrov](https://github.com/rdimitrov)
-
-## Contributing
-
-We use multiple channels for collaboration - see [modelcontextprotocol.io/community/communication](https://modelcontextprotocol.io/community/communication).
-
-Often (but not always) ideas flow through this pipeline:
-
-- **[Discord](https://modelcontextprotocol.io/community/communication)** - Real-time community discussions
-- **[Discussions](https://github.com/modelcontextprotocol/registry/discussions)** - Propose and discuss product/technical requirements
-- **[Issues](https://github.com/modelcontextprotocol/registry/issues)** - Track well-scoped technical work  
-- **[Pull Requests](https://github.com/modelcontextprotocol/registry/pulls)** - Contribute work towards issues
-
-### Quick start:
-
-#### Pre-requisites
-
-- **Docker**
-- **Go 1.24.x**
-- **ko** - Container image builder for Go ([installation instructions](https://ko.build/install/))
-- **golangci-lint v2.4.0**
-
-#### Running the server
+## Install
 
 ```bash
-# Start full development environment
-make dev-compose
+pip install personal-mcp-arun            # core + IsItMe? triage tools
+pip install "personal-mcp-arun[all]"     # + Gmail/Calendar, desktop (psutil, clipboard, screenshots), Twitter/X
 ```
 
-This starts the registry at [`localhost:8080`](http://localhost:8080) with PostgreSQL. The database uses ephemeral storage and is reset each time you restart the containers, ensuring a clean state for development and testing.
+Python 3.10+. Requires the MCP Python SDK 2.x (installed automatically).
 
-**Note:** The registry uses [ko](https://ko.build) to build container images. The `make dev-compose` command automatically builds the registry image with ko and loads it into your local Docker daemon before starting the services.
+### Claude Desktop / Claude Code
 
-By default, the registry seeds from the production API with a filtered subset of servers (to keep startup fast). This ensures your local environment mirrors production behavior and all seed data passes validation. For offline development you can seed from a file without validation with `MCP_REGISTRY_SEED_FROM=data/seed.json MCP_REGISTRY_ENABLE_REGISTRY_VALIDATION=false make dev-compose`.
+```json
+{
+  "mcpServers": {
+    "personal": { "command": "personal-mcp" }
+  }
+}
+```
 
-The setup can be configured with environment variables in [docker-compose.yml](./docker-compose.yml) - see [.env.example](./.env.example) for a reference.
+Claude Code: `claude mcp add personal -- personal-mcp`
 
-<details>
-<summary>Alternative: Running a pre-built Docker image</summary>
+## IsItMe? triage tools
 
-Pre-built Docker images are automatically published to GitHub Container Registry. Note that the image does not bundle PostgreSQL, so you need to run your own and point the registry at it via `MCP_REGISTRY_DATABASE_URL` (see [docker-compose.yml](./docker-compose.yml) for a working example):
+| Tool | What it does |
+|---|---|
+| `diagnose(url)` | One-shot outage diagnosis with a verdict card: DNS + TLS + HTTP + provider status, likely cause, fixes, ticket summary |
+| `check_dns(name, record_types)` | A/AAAA/CNAME/MX/TXT/NS/CAA/SOA from Google + Cloudflare DNS (and your own resolver locally), consistency check |
+| `check_tls(url)` | Certificate expiry, hostname match, issuer, chain trust, protocol |
+| `check_http(url)` | Status, redirect chain, latency, CDN headers, explanations of 5xx / Cloudflare 52x |
+| `check_email_auth(domain)` | MX, SPF (incl. 10-lookup limit), DMARC policy, DKIM under common selectors |
+| `vendor_status(vendors)` | Live status of AWS, Azure, GCP, Cloudflare, GitHub, Slack, Jira, Zoom, Vercel, Netlify, OpenAI, … |
+
+**Local vs. cloud view.** Run locally, the checks run from *your* network (and can reach internal hosts). Set
+`PERSONAL_MCP_CLOUD_URL=https://<your-hosted-isitme>` and call `diagnose(url, compare_cloud=true)` to also run them
+from the internet — if it works from the cloud but not from you, the verdict is "your network".
+
+## Personal assistant tools
+
+System info, IP addresses, disk usage, port check, shell commands · list/read/write/search/move/delete files ·
+clipboard, screenshots · open URLs, web search, fetch URL · open apps, list/kill processes · Gmail inbox/read/send ·
+Calendar today/upcoming/create · notifications, reminders · Twitter/X post · date/time, calculator, text-to-speech.
+
+**Safe mode:** set `PERSONAL_MCP_SAFE_MODE=1` to not register tools that run commands, write/move/delete files,
+kill processes, send e-mail or post to social media.
+
+Gmail/Calendar: put a Google OAuth *Desktop app* client file at `~/.personal-mcp/gmail_credentials.json`
+(or set `GMAIL_CREDENTIALS_PATH`). The first call opens a browser to sign in.
+
+## Run modes
 
 ```bash
-# Run latest stable release
-docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:latest
-
-# Run latest from main branch (continuous deployment)
-docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:main
-
-# Run specific release version
-docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:v1.0.0
-
-# Run development build from main branch
-docker run -p 8080:8080 ghcr.io/modelcontextprotocol/registry:main-20250906-abc123d
+personal-mcp             # stdio (default) — all tools
+personal-mcp --http      # streamable HTTP on 127.0.0.1:8000 — all tools, local clients only
+personal-mcp --hosted    # public server on 0.0.0.0:$PORT — ONLY the read-only IsItMe? tools
 ```
 
-**Available tags:** 
-- **Releases**: `latest`, `v1.0.0`, `v1.1.0`, etc.
-- **Continuous**: `main` (latest main branch build)
-- **Development**: `main-<date>-<sha>` (specific commit builds)
+`--hosted` is what powers the ChatGPT app. It never registers personal tools, only checks public internet
+addresses on ports 80/443/8080/8443 (private, loopback, link-local and cloud-metadata addresses are refused, and
+every connection is pinned to a verified IP to stop DNS-rebinding), rate-limits per client, caches results for 60 s
+and logs no checked URLs. Deploy with the included `Dockerfile` (see [PUBLISHING.md](PUBLISHING.md)).
 
-</details>
-
-#### Publishing a server
-
-To publish a server, we've built a simple CLI. You can use it with:
+## Development
 
 ```bash
-# Build the latest CLI
-make publisher
-
-# Use it!
-./bin/mcp-publisher --help
+pip install -e ".[dev]"
+pytest -q
 ```
 
-See [the publisher guide](./docs/modelcontextprotocol-io/quickstart.mdx) for more details.
+Tests spin up local HTTPS servers with valid, expiring, expired, wrong-host and self-signed certificates, and
+exercise the MCP protocol in-process, over streamable HTTP and over stdio.
 
-#### Other commands
+## License
 
-```bash
-# Run lint, unit tests and integration tests
-make check
-```
-
-There are also a few more helpful commands for development. Run `make help` to learn more, or look in [Makefile](./Makefile).
-
-<!--
-For Claude and other AI tools: Always prefer make targets over custom commands where possible.
--->
-
-## Architecture
-
-### Project Structure
-
-```
-├── cmd/                     # Application entry points
-│   └── publisher/           # Server publishing tool
-├── data/                    # Seed data
-├── deploy/                  # Deployment configuration (Pulumi)
-├── docs/                    # Documentation
-├── internal/                # Private application code
-│   ├── api/                 # HTTP handlers and routing
-│   ├── auth/                # Authentication (GitHub OAuth, JWT, namespace blocking)
-│   ├── config/              # Configuration management
-│   ├── database/            # Data persistence (PostgreSQL)
-│   ├── service/             # Business logic
-│   ├── telemetry/           # Metrics and monitoring
-│   └── validators/          # Input validation
-├── pkg/                     # Public packages
-│   ├── api/                 # API types and structures
-│   │   └── v0/              # Version 0 API types
-│   └── model/               # Data models for server.json
-├── scripts/                 # Development and testing scripts
-├── tests/                   # Integration tests
-└── tools/                   # CLI tools and utilities
-    └── validate-*.sh        # Schema validation tools
-```
-
-### Authentication
-
-Publishing supports multiple authentication methods:
-- **GitHub OAuth** - For publishing by logging into GitHub
-- **GitHub OIDC** - For publishing from GitHub Actions
-- **DNS verification** - For proving ownership of a domain and its subdomains
-- **HTTP verification** - For proving ownership of a domain
-
-The registry validates namespace ownership when publishing. E.g. to publish...:
-- `io.github.domdomegg/my-cool-mcp` you must login to GitHub as `domdomegg`, or be in a GitHub Action on domdomegg's repos
-- `me.adamjones/my-cool-mcp` you must prove ownership of `adamjones.me` via DNS or HTTP challenge
-
-## Community Projects
-
-Check out [community projects](docs/community-projects.md) to explore notable registry-related work created by the community.
-
-## More documentation
-
-See the [documentation](./docs) for more details if your question has not been answered here!
-mcp-name: io.github.arun250492/personal-mcp
+MIT © Arun

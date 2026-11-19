@@ -4,27 +4,35 @@ build-backend = "hatchling.build"
 
 [project]
 name = "personal-mcp-arun"
-version = "1.0.1"
-description = "Your AI-powered personal desktop assistant — MCP server for Gmail, Calendar, files, clipboard, apps, browser, and more."
+dynamic = ["version"]
+description = "Personal AI desktop assistant MCP server (Gmail, Calendar, files, apps) + IsItMe? outage triage for IT (DNS, TLS, HTTP, e-mail auth, cloud status)."
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 authors = [{ name = "Arun", email = "arun250492@users.noreply.github.com" }]
-keywords = ["mcp", "model-context-protocol", "ai", "assistant", "gmail", "calendar", "desktop"]
+keywords = ["mcp", "model-context-protocol", "ai", "assistant", "gmail", "calendar", "desktop",
+            "devops", "sre", "dns", "ssl", "outage", "chatgpt", "claude"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Topic :: Software Development :: Libraries",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: System :: Networking :: Monitoring",
+    "Topic :: System :: Systems Administration",
 ]
 dependencies = [
-    "mcp[cli]>=1.2.0",
+    "mcp>=2.3,<3",
     "httpx>=0.27.0",
+    "cryptography>=42.0",
+    "uvicorn>=0.30",
 ]
-
-# UPDATE THIS after publishing to PyPI
-mcpName = "io.github.arun250492/personal-mcp"
 
 [project.optional-dependencies]
 google = [
@@ -36,13 +44,17 @@ desktop = [
     "psutil>=5.9.0",
     "pyperclip>=1.8.0",
     "Pillow>=10.0.0",
+    "send2trash>=1.8.0",
 ]
 social = [
     "tweepy>=4.14.0",
 ]
 all = [
-    "personal-mcp[google,desktop,social]",
-    "send2trash>=1.8.0",
+    "personal-mcp-arun[google,desktop,social]",
+]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
 ]
 
 [project.scripts]
@@ -52,3 +64,18 @@ personal-mcp = "personal_mcp:main"
 Homepage = "https://github.com/arun250492/Personal-MCP"
 Repository = "https://github.com/arun250492/Personal-MCP"
 Issues = "https://github.com/arun250492/Personal-MCP/issues"
+Changelog = "https://github.com/arun250492/Personal-MCP/blob/main/CHANGELOG.md"
+
+[tool.hatch.version]
+path = "src/personal_mcp/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/personal_mcp"]
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/docs", "/chatgpt-plugin", "/deploy", "/.github", "/Dockerfile", "/.dockerignore"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]

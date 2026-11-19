@@ -1,0 +1,37 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy policy — IsItMe?</title><link rel="icon" href="logo.svg"><link rel="stylesheet" href="style.css"></head><body>
+<header><nav><a class="brand" href="./"><img src="logo.svg" alt="">IsItMe?</a><a href="./#use">Use it</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a><a href="https://github.com/arun250492/Personal-MCP/issues">Support</a></nav></header>
+<main>
+<h1>Privacy policy</h1>
+<p><i>Effective 19 November 2026. Applies to the hosted IsItMe? service used through ChatGPT and other MCP clients.</i></p>
+<h2>Summary</h2>
+<p>IsItMe? does not require an account, does not access your ChatGPT history or any of your accounts, and does not store the websites you check.</p>
+<h2>What we receive</h2>
+<ul>
+<li><b>The inputs of each check</b>: the URL, domain, or vendor names that ChatGPT sends when you ask IsItMe? to run a check. We do not receive your conversation, your name, or your e-mail address.</li>
+<li><b>Connection metadata</b>: like any web service, our hosting provider sees the IP address of the caller (for ChatGPT, this is OpenAI's servers), the time and the request path, and may keep this in short-lived infrastructure logs for security and abuse prevention.</li>
+</ul>
+<h2>How it is used</h2>
+<ul>
+<li>To run the checks you asked for and return the result.</li>
+<li>Results are cached in memory for up to 60 seconds so repeated checks of the same site do not overload it, then discarded. Nothing is written to a database or disk.</li>
+<li>Our application logs do not record the URLs or domains you check.</li>
+<li>Per-IP rate limits use the caller's IP address in memory only.</li>
+</ul>
+<h2>Who else sees what</h2>
+<p>To perform a check, IsItMe? contacts:</p>
+<ul>
+<li>the website or service you asked about (it will see a request from our server, identified as <code>IsItMe-Triage</code>);</li>
+<li>Google Public DNS and Cloudflare DNS (they receive the domain name being looked up);</li>
+<li>public status pages of cloud and SaaS providers (for example githubstatus.com), which receive no information about you.</li>
+</ul>
+<p>We do not sell, rent or share data with anyone else, and we use no advertising or analytics trackers.</p>
+<h2>Children</h2>
+<p>IsItMe? is a technical tool for IT professionals and is not directed at children.</p>
+<h2>Changes and contact</h2>
+<p>We will post any changes on this page with a new effective date. Questions or requests: open an issue at <a href="https://github.com/arun250492/Personal-MCP/issues">github.com/arun250492/Personal-MCP/issues</a>.</p>
+<h2>Self-hosted and local use</h2>
+<p>If you run the open-source <code>personal-mcp-arun</code> package on your own computer or server, this policy does not apply: the software runs entirely under your control and sends nothing to us.</p>
+</main>
+<footer><div>IsItMe? is part of <a href="https://github.com/arun250492/Personal-MCP">Personal MCP</a>, open source under the MIT license. Not affiliated with OpenAI or any cloud provider named on this site.</div></footer>
+</body></html>

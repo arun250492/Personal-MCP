@@ -1,0 +1,16 @@
+# Render Blueprint — copy to the repo root as render.yaml, or create a Web Service from the Dockerfile.
+# Use a paid instance (Starter): free instances sleep, and the first ChatGPT call after a sleep can time out.
+services:
+  - type: web
+    name: isitme-mcp
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter
+    region: singapore
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: ISITME_TRUST_PROXY
+        value: "1"
+      - key: OPENAI_APPS_CHALLENGE   # paste the token from the OpenAI Plugins dashboard
+        sync: false
